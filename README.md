@@ -1,4 +1,4 @@
-# canvasQuizLoader
+# Canvas Quiz Loader
 Firefox Port of Canvas Quiz Loader, a Chrome extension made by Alex Shnyrov (1993alexey@gmail.com)
 
 
