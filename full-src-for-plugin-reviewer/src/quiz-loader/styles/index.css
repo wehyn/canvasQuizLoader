@@ -1,0 +1,58 @@
+.incorrect-answer {
+   color: red !important;
+}
+
+.correct-answer {
+   color: #00db00 !important;
+}
+
+/* START STYLES FOR FILL_IN_MULTIPLE_BLANKS */
+
+.fill-in-multiple-blank-extra-info {
+  margin-top: 1em;
+}
+
+.answers-panel {
+  border: 1px solid #ccc;
+  padding: 0.75em;
+  margin-top: 0.5em;
+  background-color: #f9f9f9;
+}
+
+.answers-panel h4 {
+  margin: 0 0 0.25em;
+}
+
+.answer-list {
+  margin: 0;
+  padding-left: 0.5em;
+}
+
+
+li {
+  list-style-type: none; /* Remove default bullet */
+  padding-left: 20px; /* Add space for the icon */
+  position: relative;
+}
+
+/* Green checkmark */
+li.checkmark::before {
+  content: '✔'; /* Unicode for checkmark */
+  color: green;
+  font-size: 16px;
+  position: absolute;
+  left: 0; /* Position the icon on the left */
+  top: 0;
+}
+
+/* Red cross */
+li.cross::before {
+  content: '✖'; /* Unicode for cross */
+  color: red;
+  font-size: 16px;
+  position: absolute;
+  left: 0; /* Position the icon on the left */
+  top: 0;
+}
+
+/* END STYLES FOR FILL_IN_MULTIPLE_BLANKS */

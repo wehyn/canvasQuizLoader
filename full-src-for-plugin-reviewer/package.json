@@ -1,0 +1,41 @@
+{
+  "name": "canvas-quiz-loader",
+  "version": "0.4.0",
+  "description": "Automatically load correct answers from previous quiz attempts.",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run dev:webpack\" \"npm run dev:webext\"",
+    "start:firefox": "concurrently \"npm run dev:webpack\" \"npm run dev:webext:firefox\"",
+    "dev:webpack": "webpack -w --mode development --devtool source-map",
+    "dev:webext": "npm run dev:webext:firefox -- --target=chromium",
+    "dev:webext:firefox": "web-ext run -s=dist --start-url https://canvas.instructure.com/courses/1412442/quizzes/3979035/take",
+    "build": "webpack --mode=production && npm run build:manifest && npm run lint && web-ext build -o -s=dist -a=dist",
+    "build:firefox": "webpack --mode=production && npm run build:manifest:firefox && npm run lint && web-ext build -o -s=dist -a=dist",
+    "build:manifest": "node build-manifest.js",
+    "build:manifest:firefox": "npm run build:manifest -- firefox",
+    "lint": "web-ext lint -s dist"
+  },
+  "keywords": [
+    "canvas",
+    "quiz",
+    "loader"
+  ],
+  "author": "Alex Shnyrov",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "concurrently": "^8.2.2",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.2",
+    "web-ext": "^7.8.0",
+    "webpack": "^5.89.0",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  }
+}
