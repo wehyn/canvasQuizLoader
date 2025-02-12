@@ -6,3 +6,14 @@ export function pickBy<T>(
     Object.entries(obj).filter(([key, value]) => predicate(value as T, key))
   );
 }
+
+export function copyError<T extends object>(error: T): T {
+  if (!(error instanceof Error)) return error;
+
+  const clone: any = {}
+  Object.getOwnPropertyNames(error).forEach((key) => {
+      clone[key] = (error as any)[key];
+  });
+
+  return clone as T;
+}

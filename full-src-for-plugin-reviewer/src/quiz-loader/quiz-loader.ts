@@ -1,36 +1,36 @@
 import { getQuizSubmissions } from './submissions';
 import { getCorrectAnswers } from './answers';
 import display from './display';
+import { BrowserLogger } from '../logger/logger';
 
-loadQuiz();
+const logger = BrowserLogger.getInstance()
 
-async function loadQuiz(): Promise<void> {
-    const currentURL = window.location.href;
-    const courseId = parseInt(currentURL.split('courses/')[1].split('/')[0]);
-    const quizId = parseInt(currentURL.split('quizzes/')[1].split('/')[0]);
-    const urlTokens = currentURL.split('/');
-    const baseUrl = `${urlTokens[0]}//${urlTokens[2]}/`;
+export async function main(): Promise<void> {
+  const currentURL = window.location.href;
+  const courseId = parseInt(currentURL.split('courses/')[1].split('/')[0]);
+  const quizId = parseInt(currentURL.split('quizzes/')[1].split('/')[0]);
+  const urlTokens = currentURL.split('/');
+  const baseUrl = `${urlTokens[0]}//${urlTokens[2]}/`;
 
-    if (!courseId) {
-        console.error('Unable to retrieve course id');
-    } else if (!quizId) {
-        console.error('Unable to retrieve quiz id');
-    }
+  if (!courseId) {
+    logger.error('Unable to retrieve course id');
+  } else if (!quizId) {
+    logger.error('Unable to retrieve quiz id');
+  }
 
-    const submissions = await getQuizSubmissions(courseId, quizId, baseUrl);
-    const correctAnswers = getCorrectAnswers(submissions);
-    console.log(correctAnswers)
+  const submissions = await getQuizSubmissions(courseId, quizId, baseUrl);
+  const correctAnswers = getCorrectAnswers(submissions);
+  logger.info('correctAnswers:', correctAnswers)
+  logger.info('submissions:', submissions)
 
-    if (!correctAnswers) {
-        return null;
-    }
+  if (!correctAnswers) {
+    return null;
+  }
 
-    display(correctAnswers);
+  await display(correctAnswers);
 };
 
-const script = document.createElement('script');
-script.innerHTML = "confirm = function(){return true;}"
-document.body.appendChild(script);
+
 /*
     TODO
     * Don't paste in inccorect answers (or have an option to view past answers)

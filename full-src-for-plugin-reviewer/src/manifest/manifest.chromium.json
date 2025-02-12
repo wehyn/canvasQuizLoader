@@ -1,3 +1,10 @@
 {
-
+  "content_scripts": [
+    {
+      "js": [
+        "quiz-loader/browser-polyfill.min.js",
+        "quiz-loader/index.js"
+      ]
+    }
+  ]
 }

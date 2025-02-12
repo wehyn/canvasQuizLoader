@@ -1,6 +1,6 @@
 {
   "name": "canvas-quiz-loader",
-  "version": "0.4.0",
+  "version": "0.5.2",
   "description": "Automatically load correct answers from previous quiz attempts.",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "build:firefox": "webpack --mode=production && npm run build:manifest:firefox && npm run lint && web-ext build -o -s=dist -a=dist",
     "build:manifest": "node build-manifest.js",
     "build:manifest:firefox": "npm run build:manifest -- firefox",
-    "lint": "web-ext lint -s dist"
+    "lint": "web-ext lint -s dist",
+    "dd:maps": "datadog-ci sourcemaps upload dist --service=canvas-quiz-loader --release-version=0.5.2  --minified-path-prefix=chrome-extension://pfagnepdndhkmilceinbebdfbmiddagl"
   },
   "keywords": [
     "canvas",
@@ -23,19 +24,24 @@
   "author": "Alex Shnyrov",
   "license": "ISC",
   "devDependencies": {
+    "@datadog/datadog-ci": "^2.48.0",
+    "@types/firefox-webext-browser": "^120.0.4",
     "@types/lodash-es": "^4.17.12",
+    "@types/webextension-polyfill": "^0.12.1",
     "concurrently": "^8.2.2",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
+    "lodash-es": "^4.17.21",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.2",
     "web-ext": "^7.8.0",
+    "webextension-polyfill": "^0.12.0",
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "@datadog/browser-logs": "^6.0.0"
   }
 }

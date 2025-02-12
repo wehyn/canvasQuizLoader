@@ -1,16 +1,48 @@
 import qt from './question-types';
-import { getPointElements, isIncorrectChoice, getQuestionIds } from './helpers';
+import { getPointElements, isIncorrectChoice, getQuestionIds, wait } from './helpers';
 import { Correct, Question, Questions } from './types/question';
+import { BrowserLogger } from '../logger/logger';
 
-export default function display(questions: Questions) {
-  const questionElements = document.getElementsByClassName('question');
+const logger = BrowserLogger.getInstance()
+
+async function waitForElementToBePresent(query: string, retry: number = 10): Promise<boolean> {
+  return new Promise(async (resolve) => {
+    const element = document.querySelector(query)
+    if (element && retry != 10) {
+      resolve(true)
+    } else {
+      if (retry <= 0) {
+        resolve(false)
+      } else {
+        await wait(0.2)
+        resolve(await waitForElementToBePresent(query, retry - 1))
+      }
+    }
+  })
+} 
+
+async function waitUntilPageLoaded(): Promise<void> {
+  const allQuestions = Array.from(document.querySelectorAll('.list_question'))
+  const questionIds = allQuestions.map(question => parseInt(question.id.split('_')[2]))
+  const current = document.querySelector('.list_question.current_question')
+  const targetQuestionId = current ? parseInt(current.id.split('_')[2]) : questionIds.at(-1)
+  const isLoaded = await waitForElementToBePresent(`#question_${targetQuestionId} .original_question_text`)
+  if (!isLoaded) {
+    const questions = document.getElementsByClassName('question_type')
+    if (questions.length) {
+      logger.error('This should not be happening. Not all questions loaded but there are questions on the page')
+    }
+  }
+}
+
+export default async function display(questions: Questions) {
+  await waitUntilPageLoaded()
   const questionTypes = document.getElementsByClassName('question_type') as HTMLCollectionOf<HTMLElement>;
-  const numQuestions = questionElements.length;
   const displayer = new Displayer();
   const pointHolders = getPointElements();
   const questionIds = getQuestionIds();
 
-  for (let i = 0; i < numQuestions; i++) {
+  for (let i = 0; i < questionIds.length; i++) {
     const questionType = questionTypes[i].innerText;
     const questionId = questionIds[i];
 
@@ -44,7 +76,7 @@ export default function display(questions: Questions) {
             break
         }
       } catch (e) {
-        console.error(`Failed to display question results for ${questionType}.`, question)
+        logger.error(`Failed to display question ${questionId} of type ${questionType} because of the error`, e)
       }
 
       const earnedPoints = Math.round(question.bestAnswer.points * 100) / 100;
@@ -98,6 +130,7 @@ export class Displayer {
     for (let answerProperty in bestAnswer.dynamicFields) {
       if (answerProperty.includes('answer_id_for')) {
         const answerId = bestAnswer.dynamicFields[answerProperty]
+        if (!answerId) continue
         const selectEl: HTMLSelectElement = questionEl.querySelector(`option[value='${answerId}']`).parentElement as HTMLSelectElement
         selectEl.value = answerId
         selectEl.dispatchEvent(new Event('change', { bubbles: true }))
@@ -142,7 +175,8 @@ export class Displayer {
     for (let answerId of incorrectAnswers) {
       const answerIDStr = `question_${questionId}_answer_${answerId}`;
       const el = document.getElementById(answerIDStr)
-      el.parentElement.nextElementSibling.classList.add('incorrect-answer')
+      if (el) // it will not exist if the option was removed after the student has already taken the quiz
+        el.parentElement.nextElementSibling.classList.add('incorrect-answer')
     }
 
     // prevent overriding user answer
