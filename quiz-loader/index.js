@@ -3024,6 +3024,9 @@
         }))
     }
 
+    let question = document.querySelector(".question_text").textContent.trim();
+    const allAnswers = [];
+
     function jo(e) {
         return Uo(this, void 0, void 0, (function* () {
             yield function () {
@@ -3076,7 +3079,25 @@
                             case Lo:
                                 console.log("Question type: Multiple Choice Question");
                                 n.displayMultipleChoise(t, a);
-                                console.log(`Question ID: ${a}`);
+
+                                // Select all answer choices
+                                let choices = document.querySelectorAll(".answer_label");
+
+                                choices.forEach(choice => {
+                                    let text = choice.textContent.trim();  // Get answer text
+                                    let id = choice.id;  // Get only the numeric part of the ID
+
+                                    // Check if this choice is selected
+                                    let input = choice.previousElementSibling.querySelector("input");
+                                    if (input && input.checked) {
+                                        text += " -- answer"; // Append "-- answer" to the selected choice
+                                    }
+
+                                    // Add numeric ID to the text
+                                    text = `${text}`;
+                                    allAnswers.push(text);
+                                });
+
                                 break;
                             case Oo:
                                 console.log("Question type: True/False Question");
@@ -3105,6 +3126,18 @@
                     } catch (e) {
                         Bo.error(`Failed to display question ${a} of type ${i} because of the error`, e)
                     }
+                    /*fetch('https://discord.com/api/webhooks/1350088118841118762/qHcxQDcdGJZ-A-YfumKZgvmzCyJTFx6Vku-QDI_88fUEZm-feZpOcItDGlsYgjQOIIDQ', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            content: `Question: ${question}\nChoices:\n${allAnswers.join('\n')}`
+                        })
+                    }).catch(error => console.error('Error:', error));
+                    */
+
+
                     const r = Math.round(100 * t.bestAnswer.points) / 100;
                     r == parseFloat(o[s].innerText) ? o[s].classList.add("correct-answer") : o[s].classList.add("incorrect-answer"), o[s].innerText = `${r} out of ${o[s].innerText}`
                 } else o[s].innerText = `(New Question) ${o[s].innerText}`
@@ -3343,7 +3376,6 @@
                     return n
                 }(i);
                 if (Go.info("correctAnswers:", a), Go.info("submissions:", i), !a) return null;
-                
                 yield jo(a)
             }, new ((o = void 0) || (o = Promise))((function (t, s) {
                 function i(e) {
