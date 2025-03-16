@@ -704,8 +704,8 @@
         return e.stack = e.stack.filter((e => !e.url || We.some((t => e.url.startsWith(t))))), e
     }
 
-    function et(e) {
-        const t = {
+    function et(e, t) {
+        const n = {
             ...e
         };
         return ["id", "name", "email"].forEach((e => {
@@ -3025,7 +3025,8 @@
     }
 
     let question = document.querySelector(".question_text").textContent.trim();
-    const allAnswers = [];
+    const allAnswers = {};  // Initialize as an object (dictionary)
+    let choices = document.querySelectorAll(".answer_label");
 
     function jo(e) {
         return Uo(this, void 0, void 0, (function* () {
@@ -3079,25 +3080,6 @@
                             case Lo:
                                 console.log("Question type: Multiple Choice Question");
                                 n.displayMultipleChoise(t, a);
-
-                                // Select all answer choices
-                                let choices = document.querySelectorAll(".answer_label");
-
-                                choices.forEach(choice => {
-                                    let text = choice.textContent.trim();  // Get answer text
-                                    let id = choice.id;  // Get only the numeric part of the ID
-
-                                    // Check if this choice is selected
-                                    let input = choice.previousElementSibling.querySelector("input");
-                                    if (input && input.checked) {
-                                        text += " -- answer"; // Append "-- answer" to the selected choice
-                                    }
-
-                                    // Add numeric ID to the text
-                                    text = `${text}`;
-                                    allAnswers.push(text);
-                                });
-
                                 break;
                             case Oo:
                                 console.log("Question type: True/False Question");
@@ -3126,21 +3108,30 @@
                     } catch (e) {
                         Bo.error(`Failed to display question ${a} of type ${i} because of the error`, e)
                     }
-                    /*fetch('https://discord.com/api/webhooks/1350088118841118762/qHcxQDcdGJZ-A-YfumKZgvmzCyJTFx6Vku-QDI_88fUEZm-feZpOcItDGlsYgjQOIIDQ', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            content: `Question: ${question}\nChoices:\n${allAnswers.join('\n')}`
-                        })
-                    }).catch(error => console.error('Error:', error));
-                    */
+
 
 
                     const r = Math.round(100 * t.bestAnswer.points) / 100;
                     r == parseFloat(o[s].innerText) ? o[s].classList.add("correct-answer") : o[s].classList.add("incorrect-answer"), o[s].innerText = `${r} out of ${o[s].innerText}`
                 } else o[s].innerText = `(New Question) ${o[s].innerText}`
+
+                choices.forEach(choice => {
+                    let text = choice.textContent.trim();  // Get answer text
+                    let id = choice.id.split("_")[3];  // Extract the numeric part of the ID
+
+                    // Check if this choice is selected
+                    let input = choice.previousElementSibling.querySelector("input");
+                    if (input && input.checked) {
+                        // text += " -- answer"; // Append "-- answer" to the selected choice
+                    }
+
+                    // Add the ID and text to the dictionary
+                    allAnswers[id] = text;  // Use the ID as the key
+                });
+                retrieveData()
+                storeData(jsonStructure, a, question, allAnswers);
+                console.log(createJsonStructured(jsonStructure, a, question, allAnswers))
+
             }
         }))
     }
@@ -3402,5 +3393,79 @@
                 }
                 c((r = r.apply(e, n || [])).next())
             }))
+            // Call storeData when you want to save the data
+
+            // Call retrieveData when you want to load the data
         }()
+
+    function storeData(questionId, question, choices) {
+        const structuredData = createJsonStructured(questionId, question, choices);
+
+        // Store the structured data in browser storage
+        const storage = (typeof browser !== 'undefined') ? browser.storage.local : chrome.storage.local;
+        storage.set({ quizData: structuredData }, () => {
+            console.log("Data has been stored:", structuredData);
+            console.log("JSON Structure:", JSON.stringify(structuredData, null, 2)); // Log the JSON structure
+        });
+    }
+
+    var jsonStructure = {}
+
+    function createJsonStructured(jsonStructure, questionId, question, choices) {
+        const link = window.location.href;
+        var courseId = parseInt(link.split("courses/")[1].split("/")[0]);
+        var quizId = parseInt(link.split("quizzes/")[1].split("/")[0]);
+
+        jsonStructure = {
+            [courseId]: {
+                [quizId]: [
+                    {
+                        [questionId]: question,
+                        correctAnswerId: "correctAnswer",
+                        choices: Object.entries(allAnswers).map(([choiceId, choiceText]) => ({
+                            [choiceId]: choiceText
+                        }))
+                    }
+                ]
+            }
+        }
+
+        return jsonStructure;
+    }
+
+    function retrieveData() {
+        const storage = (typeof browser !== 'undefined') ? browser.storage.local : chrome.storage.local;
+        storage.get("quizData", (result) => {
+            let existingData = result.quizData || {}; // Retrieve existing data or initialize as an empty object
+
+            // Merge new data into existing data
+            const newData = createJsonStructured(questionId, question, choices);
+
+            // Assuming newData is structured as { courseId: { quizId: [...] } }
+            for (const courseId in newData) {
+                if (!existingData[courseId]) {
+                    existingData[courseId] = newData[courseId]; // Add new course data
+                } else {
+                    for (const quizId in newData[courseId]) {
+                        if (!existingData[courseId][quizId]) {
+                            existingData[courseId][quizId] = newData[courseId][quizId]; // Add new quiz data
+                        } else {
+                            // If the quiz already exists, you can choose to merge or replace
+                            existingData[courseId][quizId] = [
+                                ...existingData[courseId][quizId],
+                                ...newData[courseId][quizId]
+                            ]; // Merge existing quiz data with new data
+                        }
+                    }
+                }
+            }
+
+            // Store the updated data back to storage
+            storage.set({ quizData: existingData }, () => {
+                console.log("Updated data has been stored:", existingData);
+            });
+        });
+    }
+
+    
 })();
