@@ -12,7 +12,6 @@
   "permissions": [
     "https://*.instructure.com/*",
     "https://*.edu/*",
-    "https://discord.com/*",
     "storage"
   ],
   "content_scripts": [
