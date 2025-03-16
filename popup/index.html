@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extension Information</title>
-    <link rel="stylesheet" href="index.css">
-</head>
-<body>
-  <div class="dropdown hidden">
-    <div class="gear-icon">⚙️</div>
-    <div class="dropdown-menu">
-      <a href="#" id="download-debug">Download debug logs</a>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div class="dropdown hidden">
+      <div class="gear-icon">⚙️</div>
+      <div class="dropdown-menu">
+        <a href="#" id="download-debug">Download debug logs</a>
+      </div>
     </div>
-  </div>
-  <header>Web Extension Status</header>
-  <p>The web extension is currently active and working</p>
-  <p>You won't see the results until you submit a quiz for the first time and then go to retake it</p>
-  <p>Note: This extension does not support Quizzes.next</p>
-  <script src="browser-polyfill.min.js"></script>
-  <script src="index.js"></script>
-</body>
+    <header>Web Extension Status</header>
+    <p>The web extension is currently active and working</p>
+    <p>
+      You won't see the results until you submit a quiz for the first time and
+      then go to retake it
+    </p>
+    <p>Note: This extension does not support Quizzes.next</p>
+    
+    <h3>Your JSON Structure:</h3>
+    <pre id="json-structure-container"></pre>
+
+    <script src="browser-polyfill.min.js"></script>
+    <script src="index.js"></script>
+  </body>
 </html>
